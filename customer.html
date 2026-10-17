@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b1b">
+  <title>My Dashboard | VYNTORA</title>
+  <link rel="stylesheet" href="customer.css">
+  <script type="module" src="customer.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span>V</span> VYNTORA</a>
+    <button id="logoutBtn" class="logout-btn" type="button">Log Out ↗</button>
+  </header>
+
+  <main class="dashboard">
+    <section class="welcome">
+      <div>
+        <p class="eyebrow">YOUR PERSONAL SPACE</p>
+        <h1>Welcome back,<br><span id="customerName">Customer</span> 👋</h1>
+        <p class="muted">Discover your next favourite thing.</p>
+      </div>
+      <div class="welcome-icon">✦</div>
+    </section>
+
+    <section class="profile-card">
+      <div class="avatar" id="avatar">V</div>
+      <div class="profile-info">
+        <h2 id="profileName">Loading profile...</h2>
+        <p id="profileEmail" class="muted">Loading email...</p>
+        <span class="account-status">● Account connected</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">YOUR ACCOUNT</p>
+          <h2>Quick access</h2>
+        </div>
+      </div>
+
+      <div class="quick-grid">
+        <button class="quick-card" data-section="orders" type="button">
+          <span class="quick-icon">📦</span>
+          <strong>My Orders</strong>
+          <small>Track your purchases</small>
+        </button>
+
+        <button class="quick-card" data-section="wishlist" type="button">
+          <span class="quick-icon">♡</span>
+          <strong>Wishlist</strong>
+          <small>Your saved products</small>
+        </button>
+
+        <button class="quick-card" data-section="cart" type="button">
+          <span class="quick-icon">🛒</span>
+          <strong>My Cart</strong>
+          <small>Review your cart</small>
+        </button>
+
+        <button class="quick-card" data-section="profile" type="button">
+          <span class="quick-icon">👤</span>
+          <strong>My Profile</strong>
+          <small>Account information</small>
+        </button>
+      </div>
+    </section>
+
+    <section class="section" id="contentSection">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">EXPLORE VYNTORA</p>
+          <h2 id="contentTitle">Your dashboard</h2>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="content-symbol">✦</div>
+        <h3 id="contentMessage">Your shopping journey starts here.</h3>
+        <p class="muted" id="contentDescription">
+          Product listings and order tracking will appear here as those features are connected.
+        </p>
+        <a href="index.html" class="shop-link">Back to Home →</a>
+      </div>
+    </section>
+
+    <footer>© 2026 VYNTORA · Shop your way.</footer>
+  </main>
+</body>
+</html>
