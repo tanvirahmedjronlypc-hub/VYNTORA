@@ -11,13 +11,21 @@
   --blue: #5794ff;
   --purple: #a477ff;
   --border: rgba(160, 175, 230, .15);
+  --glow: rgba(126, 105, 255, .25);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
   margin: 0;
   min-height: 100vh;
   font-family: Inter, Arial, sans-serif;
@@ -28,8 +36,19 @@ body {
     var(--bg);
 }
 
-button, a {
+button,
+a {
   font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
 }
 
 a {
@@ -37,56 +56,96 @@ a {
   text-decoration: none;
 }
 
-button {
-  cursor: pointer;
+.page-glow {
+  position: fixed;
+  z-index: -1;
+  top: 25%;
+  left: -130px;
+  width: 260px;
+  height: 260px;
+  pointer-events: none;
+  border-radius: 50%;
+  background: rgba(87, 148, 255, .13);
+  filter: blur(85px);
+  animation: glowDrift 8s ease-in-out infinite alternate;
 }
 
 .topbar {
+  position: sticky;
+  z-index: 10;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px max(5%, calc((100% - 1120px) / 2));
+  gap: 15px;
+  padding: 15px max(5%, calc((100% - 1120px) / 2));
   border-bottom: 1px solid var(--border);
-  background: rgba(8, 11, 27, .7);
-  backdrop-filter: blur(16px);
+  background: rgba(8, 11, 27, .82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .brand {
-  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
   font-size: 21px;
+  font-weight: 800;
   letter-spacing: 1px;
+  transition: transform .25s ease;
+}
+
+.brand:hover {
+  transform: translateY(-2px);
 }
 
 .brand span {
   display: inline-grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  margin-right: 5px;
+  width: 35px;
+  height: 35px;
+  margin-right: 8px;
   border-radius: 11px;
   background: linear-gradient(135deg, var(--blue), var(--purple));
+  box-shadow: 0 0 22px rgba(87, 148, 255, .25);
 }
 
-.logout-btn, .shop-link {
+.logout-btn,
+.shop-link {
   border: 1px solid var(--border);
   background: var(--panel2);
   color: var(--text);
   border-radius: 12px;
   padding: 11px 16px;
   font-weight: 600;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+
+.logout-btn:hover,
+.shop-link:hover {
+  transform: translateY(-2px);
+  border-color: var(--blue);
+  box-shadow: 0 6px 22px rgba(87, 148, 255, .18);
+}
+
+.logout-btn:disabled {
+  cursor: wait;
+  opacity: .65;
 }
 
 .dashboard {
+  position: relative;
   max-width: 1120px;
   margin: auto;
   padding: 36px 22px 20px;
 }
 
 .welcome {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 24px;
+  overflow: hidden;
   padding: 32px;
   border: 1px solid var(--border);
   border-radius: 26px;
@@ -95,7 +154,32 @@ button {
   animation: riseIn .65s ease both;
 }
 
+.welcome::after {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: -40%;
+  width: 35%;
+  height: 300%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, .045),
+    transparent
+  );
+  transform: rotate(25deg);
+  animation: lightSweep 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.welcome-text {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
 .eyebrow {
+  margin: 0;
   color: #a99aff;
   font-size: 11px;
   font-weight: 800;
@@ -105,44 +189,129 @@ button {
 h1 {
   margin: 12px 0;
   font-size: clamp(29px, 5vw, 43px);
-  line-height: 1.18;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
-h1 span {
+h1 #customerName {
   background: linear-gradient(90deg, #66b5ff, #c29aff);
   color: transparent;
+  -webkit-background-clip: text;
   background-clip: text;
+}
+
+.wave {
+  display: inline-block;
+  color: initial;
+  -webkit-text-fill-color: initial;
+  animation: waveHand 2s ease-in-out infinite;
+  transform-origin: 70% 80%;
 }
 
 .muted {
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.7;
   overflow-wrap: anywhere;
 }
 
 .welcome-icon {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 95px;
-  height: 95px;
+  width: 112px;
+  height: 112px;
   flex-shrink: 0;
-  font-size: 43px;
-  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 32px;
   background: linear-gradient(135deg, #5794ff, #9d68fa);
   box-shadow: 0 0 45px rgba(126, 105, 255, .4);
   animation: floatIcon 3s ease-in-out infinite;
+}
+
+.welcome-icon > span {
+  position: absolute;
+  top: 7px;
+  right: 12px;
+  color: #fff;
+  font-size: 22px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.robot-face {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 66px;
+  height: 58px;
+  border: 3px solid rgba(255, 255, 255, .9);
+  border-radius: 19px;
+  background: rgba(8, 11, 27, .8);
+  box-shadow: 0 7px 20px rgba(8, 11, 27, .25);
+  animation: robotBob 2.5s ease-in-out infinite;
+}
+
+.robot-face::before,
+.robot-face::after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: var(--blue);
+}
+
+.robot-face::before {
+  left: 8px;
+}
+
+.robot-face::after {
+  right: 8px;
+}
+
+.robot-eyes {
+  color: #75c4ff;
+  font-size: 24px;
+  letter-spacing: 8px;
+  margin-left: 7px;
+  line-height: 1;
+}
+
+.robot-mouth {
+  margin-top: 1px;
+  color: #d7c6ff;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.dashboard-message {
+  min-height: 20px;
+  margin: 13px 3px 0;
+  color: #9bc8ff;
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .profile-card {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin-top: 24px;
+  margin-top: 18px;
   padding: 23px;
   border: 1px solid var(--border);
   border-radius: 22px;
   background: rgba(17, 23, 44, .85);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .08);
   animation: riseIn .75s ease both;
+  transition: border-color .25s, transform .25s;
+}
+
+.profile-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(164, 119, 255, .45);
 }
 
 .avatar {
@@ -151,19 +320,28 @@ h1 span {
   width: 65px;
   height: 65px;
   flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, .2);
   border-radius: 21px;
   font-size: 26px;
   font-weight: 800;
+  color: white;
   background: linear-gradient(135deg, #5794ff, #a477ff);
+  box-shadow: 0 0 25px rgba(126, 105, 255, .2);
+}
+
+.profile-info {
+  min-width: 0;
 }
 
 .profile-info h2 {
   margin: 0 0 5px;
+  font-size: 18px;
   overflow-wrap: anywhere;
 }
 
 .profile-info p {
   margin: 0 0 7px;
+  font-size: 13px;
 }
 
 .account-status {
@@ -174,10 +352,17 @@ h1 span {
 
 .section {
   margin-top: 36px;
+  animation: riseIn .8s ease both;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .section-heading h2 {
-  margin: 6px 0 18px;
+  margin: 7px 0 18px;
   font-size: 23px;
 }
 
@@ -188,24 +373,70 @@ h1 span {
 }
 
 .quick-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
   min-width: 0;
+  min-height: 155px;
   padding: 20px;
+  overflow: hidden;
   color: var(--text);
   text-align: left;
   border: 1px solid var(--border);
   border-radius: 19px;
-  background: var(--panel);
-  transition: transform .25s, border-color .25s, box-shadow .25s;
+  background: linear-gradient(145deg, var(--panel), #0e1428);
+  transition:
+    transform .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease,
+    background .25s ease;
+  animation: cardIn .55s ease both;
 }
 
-.quick-card:hover {
+.quick-card:nth-child(2) {
+  animation-delay: .06s;
+}
+
+.quick-card:nth-child(3) {
+  animation-delay: .12s;
+}
+
+.quick-card:nth-child(4) {
+  animation-delay: .18s;
+}
+
+.quick-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .3s ease;
+}
+
+.quick-card:hover,
+.quick-card:focus-visible {
   transform: translateY(-5px);
   border-color: var(--purple);
   box-shadow: 0 12px 30px rgba(125, 94, 255, .12);
+}
+
+.quick-card:hover::before,
+.quick-card:focus-visible::before,
+.quick-card.active::before {
+  transform: scaleX(1);
+}
+
+.quick-card.active {
+  border-color: rgba(164, 119, 255, .75);
+  background: linear-gradient(145deg, #1b2850, #20183c);
+  box-shadow: 0 8px 28px rgba(125, 94, 255, .12);
 }
 
 .quick-icon {
@@ -213,9 +444,15 @@ h1 span {
   place-items: center;
   width: 46px;
   height: 46px;
+  border: 1px solid rgba(255, 255, 255, .07);
   border-radius: 15px;
   font-size: 23px;
   background: linear-gradient(135deg, #263e72, #3d285f);
+  transition: transform .25s ease;
+}
+
+.quick-card:hover .quick-icon {
+  transform: scale(1.08) rotate(-4deg);
 }
 
 .quick-card strong {
@@ -224,15 +461,19 @@ h1 span {
 
 .quick-card small {
   color: var(--muted);
+  font-size: 11px;
   line-height: 1.5;
 }
 
 .content-card {
-  padding: 28px;
+  position: relative;
+  padding: 30px 24px;
+  overflow: hidden;
   text-align: center;
   border: 1px solid var(--border);
   border-radius: 22px;
-  background: var(--panel);
+  background: linear-gradient(145deg, var(--panel), #0e1428);
+  animation: riseIn .4s ease both;
 }
 
 .content-symbol {
@@ -241,21 +482,32 @@ h1 span {
   width: 60px;
   height: 60px;
   margin: 0 auto 15px;
+  border: 1px solid rgba(255, 255, 255, .15);
   border-radius: 20px;
   font-size: 28px;
   background: linear-gradient(135deg, #5794ff, #a477ff);
+  box-shadow: 0 0 28px rgba(126, 105, 255, .2);
   animation: floatIcon 3s ease-in-out infinite;
 }
 
 .content-card h3 {
+  margin: 10px 0;
   font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.content-card p {
+  max-width: 560px;
+  margin: 0 auto;
+  font-size: 13px;
 }
 
 .shop-link {
   display: inline-block;
-  margin-top: 12px;
-  background: linear-gradient(100deg, #386ff1, #8c54e8);
+  margin-top: 20px;
   border: 0;
+  background: linear-gradient(100deg, #386ff1, #8c54e8);
+  box-shadow: 0 7px 20px rgba(83, 101, 255, .2);
 }
 
 footer {
@@ -265,50 +517,281 @@ footer {
   font-size: 12px;
 }
 
+/* Animations */
 @keyframes riseIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes floatIcon {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-6px) rotate(3deg); }
+  0%, 100% {
+    transform: translateY(0) rotate(0);
+  }
+
+  50% {
+    transform: translateY(-6px) rotate(3deg);
+  }
 }
 
-@media (max-width: 720px) {
-  .dashboard {
-    padding: 22px 15px;
+@keyframes robotBob {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
   }
 
-  .welcome {
-    padding: 23px 19px;
-    border-radius: 21px;
+  50% {
+    transform: translateY(-4px) rotate(2deg);
+  }
+}
+
+@keyframes waveHand {
+  0%, 60%, 100% {
+    transform: rotate(0);
   }
 
-  .welcome-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 28px;
-    border-radius: 19px;
+  10%, 30% {
+    transform: rotate(16deg);
   }
 
+  20%, 40% {
+    transform: rotate(-8deg);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: .7;
+    transform: scale(.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes glowDrift {
+  from {
+    transform: translate(0, 0);
+  }
+
+  to {
+    transform: translate(90px, 60px);
+  }
+}
+
+@keyframes lightSweep {
+  0%, 65%, 100% {
+    left: -50%;
+  }
+
+  35% {
+    left: 130%;
+  }
+}
+
+/* Tablet */
+@media (max-width: 900px) {
   .quick-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 11px;
   }
 
   .quick-card {
-    padding: 16px;
-  }
-
-  .profile-card {
-    padding: 17px;
+    min-height: 145px;
   }
 }
 
+/* Android / Mobile */
+@media (max-width: 600px) {
+  .topbar {
+    padding: 12px 15px;
+  }
+
+  .brand {
+    font-size: 17px;
+  }
+
+  .brand span {
+    width: 31px;
+    height: 31px;
+  }
+
+  .logout-btn {
+    padding: 9px 11px;
+    font-size: 12px;
+  }
+
+  .dashboard {
+    padding: 20px 14px;
+  }
+
+  .welcome {
+    gap: 10px;
+    padding: 22px 17px;
+    border-radius: 21px;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+
+  h1 {
+    font-size: clamp(25px, 7vw, 34px);
+  }
+
+  .welcome-text > .muted {
+    font-size: 12px;
+  }
+
+  .welcome-icon {
+    width: 66px;
+    height: 66px;
+    border-radius: 21px;
+  }
+
+  .robot-face {
+    width: 45px;
+    height: 40px;
+    border-radius: 13px;
+    border-width: 2px;
+  }
+
+  .robot-eyes {
+    font-size: 18px;
+    letter-spacing: 5px;
+    margin-left: 5px;
+  }
+
+  .robot-mouth {
+    font-size: 15px;
+  }
+
+  .welcome-icon > span {
+    top: 3px;
+    right: 7px;
+    font-size: 15px;
+  }
+
+  .profile-card {
+    gap: 13px;
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .avatar {
+    width: 53px;
+    height: 53px;
+    border-radius: 17px;
+    font-size: 22px;
+  }
+
+  .profile-info h2 {
+    font-size: 15px;
+  }
+
+  .profile-info p {
+    font-size: 11px;
+  }
+
+  .section {
+    margin-top: 29px;
+  }
+
+  .section-heading h2 {
+    font-size: 21px;
+  }
+
+  .quick-grid {
+    gap: 10px;
+  }
+
+  .quick-card {
+    min-height: 135px;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .quick-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    font-size: 21px;
+  }
+
+  .quick-card strong {
+    font-size: 12px;
+  }
+
+  .quick-card small {
+    font-size: 10px;
+  }
+
+  .content-card {
+    padding: 25px 17px;
+    border-radius: 18px;
+  }
+
+  .content-card h3 {
+    font-size: 18px;
+  }
+
+  .content-card p {
+    font-size: 12px;
+  }
+
+  footer {
+    padding-top: 27px;
+  }
+}
+
+/* Extra-small phones */
+@media (max-width: 350px) {
+  .welcome {
+    padding: 18px 12px;
+  }
+
+  .welcome-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .quick-card {
+    padding: 11px;
+  }
+
+  .brand {
+    font-size: 15px;
+  }
+}
+
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
     transition-duration: .01ms !important;
   }
 }
