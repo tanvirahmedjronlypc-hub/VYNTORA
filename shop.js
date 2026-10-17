@@ -1,5 +1,9 @@
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import {
+  initializeApp,
+  getApps,
+  getApp
+} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 
 import {
   getFirestore,
@@ -17,7 +21,8 @@ const firebaseConfig = {
   measurementId: "G-1EPNG6CHF1"
 };
 
-const app = initializeApp(firebaseConfig);
+// Reuse Firebase app if customer.js has already initialized it.
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const $ = (id) => document.getElementById(id);
@@ -32,7 +37,9 @@ let allProducts = [];
 function safeImageUrl(value) {
   try {
     const url = new URL(value);
-    return ["https:", "http:"].includes(url.protocol) ? url.href : "";
+    return ["https:", "http:"].includes(url.protocol)
+      ? url.href
+      : "";
   } catch {
     return "";
   }
@@ -40,27 +47,28 @@ function safeImageUrl(value) {
 
 function readCart() {
   try {
-    const cart = JSON.parse(localStorage.getItem("vyntoraCart") || "[]");
+    const cart = JSON.parse(
+      localStorage.getItem("vyntoraCart") || "[]"
+    );
+
     return Array.isArray(cart) ? cart : [];
   } catch {
     return [];
   }
 }
 
-function saveCart(cart) {
-  try {
-    localStorage.setItem("vyntoraCart", JSON.stringify(cart));
-    updateCartCount();
-    return true;
-  } catch {
-    showStatus("Cart সংরক্ষণ করা যায়নি। Browser storage পরীক্ষা করো.", true);
-    return false;
-  }
+function showStatus(message, error = false) {
+  if (!shopStatus) return;
+
+  shopStatus.textContent = message;
+  shopStatus.className =
+    "shop-status show" + (error ? " error" : "");
 }
 
 function updateCartCount() {
   const count = readCart().reduce(
-    (total, item) => total + (Number(item.quantity) || 0),
+    (total, item) =>
+      total + Math.max(0, Number(item.quantity) || 0),
     0
   );
 
@@ -68,23 +76,37 @@ function updateCartCount() {
   if (badge) badge.textContent = String(count);
 }
 
-function showStatus(message, error = false) {
-  if (!shopStatus) return;
-  shopStatus.textContent = message;
-  shopStatus.className = "shop-status show" + (error ? " error" : "");
+function saveCart(cart) {
+  try {
+    localStorage.setItem("vyntoraCart", JSON.stringify(cart));
+    updateCartCount();
+    return true;
+  } catch (error) {
+    console.error(error);
+    showStatus(
+      "Cart সংরক্ষণ করা যায়নি। Browser storage পরীক্ষা করো।",
+      true
+    );
+    return false;
+  }
 }
 
 function createElement(tag, className, text = "") {
   const element = document.createElement(tag);
+
   if (className) element.className = className;
   element.textContent = text;
+
   return element;
 }
 
 function renderProducts() {
   if (!productGrid) return;
 
-  const search = (searchInput?.value || "").trim().toLowerCase();
+  const search = (searchInput?.value || "")
+    .trim()
+    .toLowerCase();
+
   const category = categoryFilter?.value || "all";
 
   const filtered = allProducts.filter((product) => {
@@ -95,83 +117,139 @@ function renderProducts() {
       product.category
     ].join(" ").toLowerCase();
 
-    const matchesSearch = searchable.includes(search);
-    const matchesCategory =
-      category === "all" || (product.category || "Other") === category;
+    const productCategory = product.category || "Other";
 
-    return matchesSearch && matchesCategory;
+    return (
+      searchable.includes(search) &&
+      (category === "all" || productCategory === category)
+    );
   });
 
   productGrid.replaceChildren();
 
   if (!filtered.length) {
     productGrid.append(
-      createElement("p", "shop-empty", "কোনো পণ্য পাওয়া যায়নি.")
+      createElement(
+        "p",
+        "shop-empty",
+        "কোনো পণ্য পাওয়া যায়নি। অন্য নামে খুঁজে দেখো।"
+      )
     );
     return;
   }
 
-  filtered.forEach((product) => {
+  filtered.forEach((product, index) => {
     const card = createElement("article", "shop-product-card");
-    const image = document.createElement("img");
+    card.style.animationDelay = `${Math.min(index * 50, 300)}ms`;
 
-    image.src = safeImageUrl(product.imageUrl) || "";
+    const image = document.createElement("img");
+    const imageUrl = safeImageUrl(product.imageUrl);
+
+    image.className = "shop-product-image";
     image.alt = product.name || "VYNTORA product";
     image.loading = "lazy";
+
+    if (imageUrl) {
+      image.src = imageUrl;
+    } else {
+      image.hidden = true;
+      card.append(
+        createElement("p", "shop-empty", "🛍️ ছবি দেওয়া হয়নি")
+      );
+    }
+
     image.addEventListener("error", () => {
-      image.removeAttribute("src");
-      image.alt = "ছবি পাওয়া যায়নি";
+      image.hidden = true;
+      if (!card.querySelector(".image-fallback")) {
+        const fallback = createElement(
+          "p",
+          "shop-empty image-fallback",
+          "🖼️ ছবি পাওয়া যায়নি"
+        );
+        image.insertAdjacentElement("afterend", fallback);
+      }
     });
 
     const details = createElement("div", "shop-product-details");
+
     const code = createElement(
       "p",
       "shop-product-code",
       "Code: " + (product.code || "—")
     );
+
     const name = createElement(
       "h3",
       "shop-product-name",
-      product.name || "Unnamed Product"
+      product.name || "VYNTORA Product"
     );
+
+    const priceValue = Number(product.price);
+    const validPrice = Number.isFinite(priceValue) && priceValue >= 0;
+
     const price = createElement(
       "p",
       "shop-product-price",
-      "৳" + Number(product.price || 0).toLocaleString("en-BD")
+      validPrice
+        ? "৳" + priceValue.toLocaleString("en-BD")
+        : "দাম জানতে যোগাযোগ করুন"
     );
 
-    const stock = Number(product.stock || 0);
+    const description = createElement(
+      "p",
+      "shop-product-description",
+      product.description || ""
+    );
+
+    const stock = Number(product.stock);
+    const validStock = Number.isFinite(stock) && stock > 0;
+
     const stockText = createElement(
       "p",
-      stock > 0 ? "shop-stock" : "shop-stock out",
-      stock > 0 ? `স্টকে আছে: ${stock}` : "স্টক শেষ"
+      validStock ? "shop-stock" : "shop-stock out",
+      validStock ? `স্টকে আছে: ${stock}` : "স্টক শেষ"
     );
 
     const addButton = createElement(
       "button",
       "shop-add-button",
-      stock > 0 ? "🛒 Add to Cart" : "Out of Stock"
+      validStock ? "🛒 Add to Cart" : "Out of Stock"
     );
+
     addButton.type = "button";
-    addButton.disabled = stock <= 0;
+    addButton.disabled = !validStock || !validPrice;
 
     addButton.addEventListener("click", () => {
       const cart = readCart();
-      const existing = cart.find((item) => item.id === product.id);
+
+      const existing = cart.find(
+        (item) => item.id === product.id
+      );
+
+      const currentQuantity = existing
+        ? Math.max(0, Number(existing.quantity) || 0)
+        : 0;
+
+      if (currentQuantity >= stock) {
+        showStatus(
+          "দুঃখিত! এই পণ্যের যত স্টক আছে, ততটুকুই Cart-এ যোগ করা যাবে।",
+          true
+        );
+        return;
+      }
 
       if (existing) {
-        if (existing.quantity >= stock) {
-          showStatus("স্টকের চেয়ে বেশি পণ্য Cart-এ যোগ করা যাবে না.", true);
-          return;
-        }
-        existing.quantity += 1;
+        existing.quantity = currentQuantity + 1;
+        existing.price = priceValue;
+        existing.stock = stock;
       } else {
         cart.push({
           id: product.id,
           name: product.name || "",
           code: product.code || "",
-          price: Number(product.price || 0),
-          imageUrl: safeImageUrl(product.imageUrl),
+          price: priceValue,
+          imageUrl,
+          stock,
           quantity: 1
         });
       }
@@ -179,61 +257,95 @@ function renderProducts() {
       if (saveCart(cart)) {
         showStatus("✅ পণ্য Cart-এ যোগ হয়েছে!");
         addButton.textContent = "✓ Added";
+
         setTimeout(() => {
-          if (addButton.isConnected) addButton.textContent = "🛒 Add to Cart";
-        }, 1000);
+          if (addButton.isConnected) {
+            addButton.textContent = "🛒 Add to Cart";
+          }
+        }, 1200);
       }
     });
 
-    details.append(code, name, price, stockText, addButton);
+    details.append(code, name, price, description, stockText, addButton);
     card.append(image, details);
     productGrid.append(card);
   });
 }
 
+function updateCategories() {
+  if (!categoryFilter) return;
+
+  const selected = categoryFilter.value || "all";
+  const categories = [
+    ...new Set(
+      allProducts.map((product) => product.category || "Other")
+    )
+  ].sort();
+
+  categoryFilter.replaceChildren();
+
+  const allOption = document.createElement("option");
+  allOption.value = "all";
+  allOption.textContent = "সব পণ্য";
+  categoryFilter.append(allOption);
+
+  categories.forEach((category) => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.append(option);
+  });
+
+  categoryFilter.value = categories.includes(selected)
+    ? selected
+    : "all";
+}
+
 async function loadShopProducts() {
-  if (!productGrid) return;
+  if (!productGrid) {
+    console.error("productGrid element not found in customer.html");
+    return;
+  }
 
   productGrid.replaceChildren(
-    createElement("p", "shop-empty", "পণ্য লোড হচ্ছে...")
+    createElement("p", "shop-empty", "🤖 পণ্য লোড হচ্ছে...")
   );
+
+  showStatus("Firebase থেকে পণ্য আনা হচ্ছে...");
 
   try {
     const snapshot = await getDocs(collection(db, "products"));
 
     allProducts = snapshot.docs
-      .map((item) => ({ id: item.id, ...item.data() }))
+      .map((item) => ({
+        id: item.id,
+        ...item.data()
+      }))
       .filter((product) => product.active !== false);
 
-    if (categoryFilter) {
-      const categories = [
-        ...new Set(allProducts.map((p) => p.category || "Other"))
-      ];
-
-      categories.sort().forEach((category) => {
-        const option = document.createElement("option");
-        option.value = category;
-        option.textContent = category;
-        categoryFilter.append(option);
-      });
-    }
-
+    updateCategories();
     renderProducts();
     updateCartCount();
 
-    if (!allProducts.length) {
-      showStatus("এখনো কোনো পণ্য যোগ করা হয়নি.");
-    } else {
-      showStatus(`${allProducts.length}টি পণ্য লোড হয়েছে.`);
-    }
-  } catch (error) {
-    console.error(error);
     showStatus(
-      "পণ্য লোড হয়নি। Firestore Rules ও Internet সংযোগ পরীক্ষা করো.",
+      allProducts.length
+        ? `✅ ${allProducts.length}টি পণ্য লোড হয়েছে।`
+        : "এখনো কোনো পণ্য যোগ করা হয়নি। Admin Panel থেকে পণ্য যোগ করো।"
+    );
+  } catch (error) {
+    console.error("VYNTORA shop error:", error);
+
+    showStatus(
+      "পণ্য লোড হয়নি। Internet, Firebase Config এবং Firestore Rules পরীক্ষা করো।",
       true
     );
+
     productGrid.replaceChildren(
-      createElement("p", "shop-empty", "পণ্য লোড করা যায়নি.")
+      createElement(
+        "p",
+        "shop-empty",
+        "পণ্য লোড করা যায়নি। কিছুক্ষণ পর আবার চেষ্টা করো।"
+      )
     );
   }
 }
@@ -245,4 +357,5 @@ $("openCartBtn")?.addEventListener("click", () => {
   window.location.href = "cart.html";
 });
 
+updateCartCount();
 loadShopProducts();
