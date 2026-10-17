@@ -30,6 +30,7 @@ const googleProvider = new GoogleAuthProvider();
 
 const $ = (id) => document.getElementById(id);
 
+// Page Elements
 const loginTab = $("loginTab");
 const signupTab = $("signupTab");
 const authForm = $("authForm");
@@ -50,43 +51,74 @@ const themeBtn = $("themeBtn");
 const robot = $("robot");
 
 let currentMode = "login";
+let isRedirecting = false;
 
+// Display messages
 function showMessage(text) {
-  message.textContent = text;
+  if (message) {
+    message.textContent = text;
+  }
 }
 
+// Redirect after successful authentication
+function goToDashboard() {
+  if (isRedirecting) return;
+
+  isRedirecting = true;
+  showMessage("সফল হয়েছে! VYNTORA Dashboard খুলছে...");
+
+  animateRobot();
+
+  setTimeout(() => {
+    window.location.href = "customer.html";
+  }, 800);
+}
+
+// Friendly Firebase errors
 function friendlyError(error) {
   const errors = {
     "auth/email-already-in-use":
       "এই Email দিয়ে ইতিমধ্যে Account তৈরি হয়েছে।",
+
     "auth/invalid-email":
       "সঠিক Email Address লিখুন।",
+
     "auth/weak-password":
       "Password কমপক্ষে ৬ অক্ষরের হতে হবে।",
+
     "auth/invalid-credential":
       "Email অথবা Password সঠিক নয়।",
+
     "auth/user-not-found":
       "এই Email দিয়ে কোনো Account পাওয়া যায়নি।",
+
     "auth/wrong-password":
       "Password সঠিক নয়।",
+
     "auth/popup-closed-by-user":
       "Google Sign-In বন্ধ হয়ে গেছে। আবার চেষ্টা করুন।",
+
     "auth/popup-blocked":
       "Browser Popup আটকে দিয়েছে। Popup অনুমতি দিয়ে চেষ্টা করুন।",
+
     "auth/unauthorized-domain":
       "Firebase Authorized domains-এ GitHub Pages domain যোগ করুন।",
+
     "auth/network-request-failed":
       "Internet Connection পরীক্ষা করুন।",
+
     "auth/too-many-requests":
       "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+
     "auth/operation-not-allowed":
       "Firebase Console-এ এই Sign-In Method চালু করুন।"
   };
 
   return errors[error.code] ||
-    "সমস্যা হয়েছে: " + error.message;
+    "সমস্যা হয়েছে: " + (error.message || "আবার চেষ্টা করুন।");
 }
 
+// Robot animation
 function animateRobot() {
   if (!robot) return;
 
@@ -95,8 +127,11 @@ function animateRobot() {
   robot.style.animation = "floatRobot .7s ease-in-out 2";
 }
 
+// Switch Login / Signup
 function setMode(mode) {
   currentMode = mode;
+  isRedirecting = false;
+
   const isSignup = mode === "signup";
 
   loginTab.classList.toggle("active", !isSignup);
@@ -104,6 +139,7 @@ function setMode(mode) {
 
   nameWrap.classList.toggle("hidden", !isSignup);
   fullName.required = isSignup;
+
   forgotBtn.classList.toggle("hidden", isSignup);
 
   formTitle.textContent = isSignup
@@ -138,25 +174,34 @@ function setMode(mode) {
   animateRobot();
 }
 
-loginTab.addEventListener("click", () => setMode("login"));
-signupTab.addEventListener("click", () => setMode("signup"));
+loginTab.addEventListener("click", () => {
+  setMode("login");
+});
+
+signupTab.addEventListener("click", () => {
+  setMode("signup");
+});
 
 switchBtn.addEventListener("click", () => {
   setMode(currentMode === "login" ? "signup" : "login");
 });
 
 // Show / Hide Password
-password.insertAdjacentHTML(
-  "afterend",
-  '<button type="button" id="passwordToggle" class="forgot">Show Password</button>'
-);
+if (!$("passwordToggle")) {
+  password.insertAdjacentHTML(
+    "afterend",
+    '<button type="button" id="passwordToggle" class="forgot">Show Password</button>'
+  );
+}
 
 $("passwordToggle").addEventListener("click", (event) => {
   const show = password.type === "password";
 
   password.type = show ? "text" : "password";
-  event.currentTarget.textContent =
-    show ? "Hide Password" : "Show Password";
+
+  event.currentTarget.textContent = show
+    ? "Hide Password"
+    : "Show Password";
 });
 
 // Dark / Light Theme
@@ -164,6 +209,7 @@ themeBtn.addEventListener("click", () => {
   document.body.classList.toggle("light");
 
   const isLight = document.body.classList.contains("light");
+
   themeBtn.textContent = isLight ? "🌙" : "☀️";
 
   try {
@@ -171,15 +217,20 @@ themeBtn.addEventListener("click", () => {
       "vyntora-theme",
       isLight ? "light" : "dark"
     );
-  } catch {}
+  } catch (error) {
+    // Theme still works for this page session.
+  }
 });
 
+// Restore saved theme
 try {
   if (localStorage.getItem("vyntora-theme") === "light") {
     document.body.classList.add("light");
     themeBtn.textContent = "🌙";
   }
-} catch {}
+} catch (error) {
+  // Continue with default theme.
+}
 
 // Logout Button
 let logoutBtn = $("logoutBtn");
@@ -191,6 +242,7 @@ if (!logoutBtn) {
   logoutBtn.className = "google-btn";
   logoutBtn.textContent = "Log Out";
   logoutBtn.hidden = true;
+
   message.insertAdjacentElement("afterend", logoutBtn);
 }
 
@@ -198,14 +250,17 @@ logoutBtn.addEventListener("click", async () => {
   try {
     await signOut(auth);
     showMessage("আপনি সফলভাবে Logout করেছেন।");
+    isRedirecting = false;
   } catch (error) {
     showMessage(friendlyError(error));
   }
 });
 
-// Firebase Signup and Login
+// Firebase Email Signup and Login
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+
+  if (isRedirecting) return;
 
   if (!authForm.checkValidity()) {
     authForm.reportValidity();
@@ -215,6 +270,7 @@ authForm.addEventListener("submit", async (event) => {
   const emailValue = email.value.trim();
   const passwordValue = password.value;
 
+  submitLabel.disabled = true;
   submitLabel.textContent = "Please wait...";
   showMessage("");
 
@@ -238,7 +294,9 @@ authForm.addEventListener("submit", async (event) => {
       });
 
       showMessage(
-        "Welcome to VYNTORA, " + name + "! Account created successfully."
+        "Welcome to VYNTORA, " +
+        name +
+        "! Account created successfully."
       );
     } else {
       const result = await signInWithEmailAndPassword(
@@ -249,23 +307,31 @@ authForm.addEventListener("submit", async (event) => {
 
       showMessage(
         "Welcome back, " +
-        (result.user.displayName || result.user.email) + "!"
+        (result.user.displayName || result.user.email) +
+        "!"
       );
     }
 
-    animateRobot();
+    goToDashboard();
+
   } catch (error) {
     showMessage(friendlyError(error));
   } finally {
-    submitLabel.textContent =
-      currentMode === "signup"
-        ? "Create Account"
-        : "Log In";
+    submitLabel.disabled = false;
+
+    if (!isRedirecting) {
+      submitLabel.textContent =
+        currentMode === "signup"
+          ? "Create Account"
+          : "Log In";
+    }
   }
 });
 
 // Google Sign-In
 googleBtn.addEventListener("click", async () => {
+  if (isRedirecting) return;
+
   try {
     googleBtn.disabled = true;
     showMessage("Connecting to Google...");
@@ -274,10 +340,12 @@ googleBtn.addEventListener("click", async () => {
 
     showMessage(
       "Welcome to VYNTORA, " +
-      (result.user.displayName || "Customer") + "!"
+      (result.user.displayName || "Customer") +
+      "!"
     );
 
-    animateRobot();
+    goToDashboard();
+
   } catch (error) {
     showMessage(friendlyError(error));
   } finally {
@@ -297,6 +365,7 @@ forgotBtn.addEventListener("click", async () => {
 
   try {
     await sendPasswordResetEmail(auth, emailValue);
+
     showMessage(
       "Password reset email পাঠানো হয়েছে। Inbox ও Spam folder দেখুন।"
     );
@@ -316,5 +385,5 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Initial screen
+// Initial Screen
 setMode("login");
