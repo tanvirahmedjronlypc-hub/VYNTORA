@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d20">
+  <title>VYNTORA | Admin Panel</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="background-glow"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">VYNTORA<span>.</span></a>
+    <div class="admin-label">ADMIN CONTROL CENTER</div>
+    <button id="logoutBtn" class="logout-btn" type="button">Logout ↗</button>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="robot" aria-hidden="true">
+        <div class="robot-antenna"></div>
+        <div class="robot-face">
+          <i></i><i></i>
+          <div class="robot-smile"></div>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow">YOUR STORE · YOUR CONTROL</p>
+        <h1>Welcome, <span>Admin!</span></h1>
+        <p class="muted">Manage your VYNTORA products from one place.</p>
+      </div>
+    </section>
+
+    <section class="stats">
+      <article class="stat-card">
+        <span>📦</span>
+        <p>Total Products</p>
+        <strong id="productCount">0</strong>
+      </article>
+      <article class="stat-card">
+        <span>🛍️</span>
+        <p>Store Status</p>
+        <strong class="online">Online</strong>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">PRODUCT MANAGEMENT</p>
+          <h2>➕ Add New Product</h2>
+        </div>
+        <span class="secure-tag">🔒 Admin Only</span>
+      </div>
+
+      <div id="statusMessage" class="status" role="status" aria-live="polite"></div>
+
+      <form id="productForm">
+        <div class="form-grid">
+          <label>
+            Product Name *
+            <input id="productName" required maxlength="120"
+              placeholder="e.g. Smart Watch">
+          </label>
+
+          <label>
+            Product Code *
+            <input id="productCode" required maxlength="40"
+              placeholder="e.g. 5731">
+          </label>
+
+          <label>
+            Price (৳) *
+            <input id="productPrice" type="number" min="1"
+              step="1" required placeholder="1250">
+          </label>
+
+          <label>
+            Stock Quantity *
+            <input id="productStock" type="number" min="0"
+              step="1" required placeholder="10">
+          </label>
+
+          <label class="full-width">
+            Product Image URL *
+            <input id="productImage" type="url" required
+              placeholder="https://example.com/product.jpg">
+          </label>
+
+          <label class="full-width">
+            Description
+            <textarea id="productDescription" maxlength="1500"
+              rows="4" placeholder="Write product details..."></textarea>
+          </label>
+        </div>
+
+        <button id="addProductBtn" class="primary-btn" type="submit">
+          <span>✨</span> Add Product
+        </button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">YOUR CATALOG</p>
+          <h2>📦 All Products</h2>
+        </div>
+        <button id="refreshBtn" class="secondary-btn" type="button">
+          ↻ Refresh
+        </button>
+      </div>
+      <div id="productList" class="product-list">
+        <p class="muted">Loading products...</p>
+      </div>
+    </section>
+
+    <footer>© 2026 VYNTORA · Built for your business 💙</footer>
+  </main>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
