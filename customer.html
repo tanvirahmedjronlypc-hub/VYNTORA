@@ -6,9 +6,199 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080b1b">
   <meta name="description" content="Your personal VYNTORA shopping dashboard.">
+
   <title>My Dashboard | VYNTORA</title>
 
   <link rel="stylesheet" href="customer.css">
+
+  <style>
+    .shop-section {
+      margin-top: 35px;
+      padding: 22px;
+      border: 1px solid rgba(90, 110, 255, .25);
+      border-radius: 22px;
+      background: rgba(13, 20, 48, .75);
+      animation: shopAppear .8s ease both;
+    }
+
+    .shop-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .shop-eyebrow {
+      color: #a78bfa;
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    .shop-cart-button,
+    .add-cart-button {
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      background: linear-gradient(110deg, #2563eb, #9333ea);
+      cursor: pointer;
+      transition: transform .25s, box-shadow .25s;
+    }
+
+    .shop-cart-button:hover,
+    .add-cart-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px #6d5dfc80;
+    }
+
+    .shop-filters {
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .shop-filters input,
+    .shop-filters select {
+      width: 100%;
+      min-width: 0;
+      padding: 13px;
+      color: #fff;
+      background: #101832;
+      border: 1px solid #35446f;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .shop-filters input:focus,
+    .shop-filters select:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 12px #6366f150;
+    }
+
+    .shop-filters option {
+      background: #101832;
+      color: white;
+    }
+
+    .shop-product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      gap: 16px;
+    }
+
+    .shop-product-card {
+      overflow: hidden;
+      padding: 12px;
+      border: 1px solid #27345c;
+      border-radius: 17px;
+      background: #0b1229;
+      animation: productFloat .6s ease both;
+      transition: transform .3s, border-color .3s;
+    }
+
+    .shop-product-card:hover {
+      transform: translateY(-5px);
+      border-color: #818cf8;
+    }
+
+    .shop-product-image {
+      width: 100%;
+      height: 165px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #111a35;
+    }
+
+    .shop-product-card h3 {
+      margin: 12px 0 7px;
+      font-size: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .shop-product-code {
+      color: #a5b4fc;
+      font-size: 12px;
+    }
+
+    .shop-product-price {
+      margin: 10px 0;
+      color: #67e8f9;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .shop-product-description {
+      color: #aab5d2;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .add-cart-button {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .shop-status,
+    .shop-empty {
+      padding: 12px 0;
+      color: #c7d2fe;
+      line-height: 1.7;
+    }
+
+    .shop-robot {
+      display: inline-block;
+      margin-right: 8px;
+      animation: robotBounce 1.5s ease-in-out infinite;
+    }
+
+    @keyframes shopAppear {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes productFloat {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes robotBounce {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      50% { transform: translateY(-5px) rotate(5deg); }
+    }
+
+    @media (max-width: 520px) {
+      .shop-section { padding: 14px; }
+      .shop-filters { grid-template-columns: 1fr; }
+      .shop-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .shop-product-card { padding: 9px; }
+      .shop-product-image { height: 125px; }
+      .shop-product-card h3 { font-size: 14px; }
+      .shop-product-price { font-size: 17px; }
+      .shop-cart-button { padding: 10px 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .shop-section,
+      .shop-product-card,
+      .shop-robot {
+        animation: none !important;
+      }
+
+      .shop-cart-button,
+      .add-cart-button,
+      .shop-product-card {
+        transition: none;
+      }
+    }
+  </style>
+
   <script type="module" src="customer.js"></script>
 </head>
 
@@ -27,21 +217,17 @@
 
   <main class="dashboard">
 
-    <!-- Welcome Section -->
     <section class="welcome">
       <div class="welcome-text">
         <p class="eyebrow">YOUR PERSONAL SPACE</p>
 
         <h1>
-          Welcome back,
-          <br>
+          Welcome back,<br>
           <span id="customerName">Customer</span>
           <span class="wave">👋</span>
         </h1>
 
-        <p class="muted">
-          Discover your next favourite thing.
-        </p>
+        <p class="muted">Discover your next favourite thing.</p>
       </div>
 
       <div class="welcome-icon" aria-hidden="true">
@@ -53,26 +239,19 @@
       </div>
     </section>
 
-    <!-- Status Message -->
-    <p
-      id="dashboardMessage"
-      class="dashboard-message"
-      role="status"
-      aria-live="polite"
-    >
+    <p id="dashboardMessage"
+       class="dashboard-message"
+       role="status"
+       aria-live="polite">
       Connecting to your account...
     </p>
 
-    <!-- Profile Card -->
     <section class="profile-card">
       <div class="avatar" id="avatar" aria-hidden="true">V</div>
 
       <div class="profile-info">
         <h2 id="profileName">Loading profile...</h2>
-
-        <p id="profileEmail" class="muted">
-          Loading email...
-        </p>
+        <p id="profileEmail" class="muted">Loading email...</p>
 
         <span class="account-status">
           <span aria-hidden="true">●</span>
@@ -81,7 +260,6 @@
       </div>
     </section>
 
-    <!-- Quick Access -->
     <section class="section">
       <div class="section-heading">
         <div>
@@ -91,59 +269,36 @@
       </div>
 
       <div class="quick-grid">
-
-        <button
-          class="quick-card"
-          data-section="orders"
-          type="button"
-          aria-label="Open My Orders"
-        >
+        <button class="quick-card" data-section="orders" type="button">
           <span class="quick-icon">📦</span>
           <strong>My Orders</strong>
           <small>Track your purchases</small>
         </button>
 
-        <button
-          class="quick-card"
-          data-section="wishlist"
-          type="button"
-          aria-label="Open Wishlist"
-        >
+        <button class="quick-card" data-section="wishlist" type="button">
           <span class="quick-icon">♡</span>
           <strong>Wishlist</strong>
           <small>Your saved products</small>
         </button>
 
-        <button
-          class="quick-card"
-          data-section="cart"
-          type="button"
-          aria-label="Open My Cart"
-        >
+        <button class="quick-card" data-section="cart" type="button">
           <span class="quick-icon">🛒</span>
           <strong>My Cart</strong>
           <small>Review your cart</small>
         </button>
 
-        <button
-          class="quick-card"
-          data-section="profile"
-          type="button"
-          aria-label="Open My Profile"
-        >
+        <button class="quick-card" data-section="profile" type="button">
           <span class="quick-icon">👤</span>
           <strong>My Profile</strong>
           <small>Account information</small>
         </button>
-
       </div>
     </section>
 
-    <!-- Dynamic Content -->
     <section class="section" id="contentSection">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">EXPLORE VYNTORA</p>
+          <p class="eyebrow">YOUR ACCOUNT</p>
           <h2 id="contentTitle">My Orders</h2>
         </div>
       </div>
@@ -151,25 +306,57 @@
       <div class="content-card">
         <div class="content-symbol" aria-hidden="true">✦</div>
 
-        <h3 id="contentMessage">
-          Your orders will appear here.
-        </h3>
+        <h3 id="contentMessage">Your orders will appear here.</h3>
 
         <p class="muted" id="contentDescription">
           Order history and delivery tracking will be available
           after the order system is connected.
         </p>
 
-        <a href="index.html" class="shop-link">
-          Back to Home →
-        </a>
+        <a href="#shopSection" class="shop-link">Explore Products →</a>
       </div>
     </section>
 
-    <footer>
-      © 2026 VYNTORA · Shop your way.
-    </footer>
+    <!-- VYNTORA PRODUCT SHOP -->
+    <section class="shop-section" id="shopSection">
+      <div class="shop-heading">
+        <div>
+          <p class="shop-eyebrow">DISCOVER VYNTORA</p>
+          <h2>🛍️ Explore Products</h2>
+          <p class="muted">তোমার পছন্দের পণ্য খুঁজে নাও।</p>
+        </div>
 
+        <button id="openCartBtn" class="shop-cart-button" type="button">
+          🛒 Cart (<span id="cartCount">0</span>)
+        </button>
+      </div>
+
+      <div class="shop-filters">
+        <input
+          id="productSearch"
+          type="search"
+          placeholder="🔍 পণ্যের নাম বা Code দিয়ে খুঁজুন..."
+          aria-label="Search products"
+        >
+
+        <select id="categoryFilter" aria-label="Filter by category">
+          <option value="all">সব পণ্য</option>
+        </select>
+      </div>
+
+      <p id="shopStatus" class="shop-status" role="status" aria-live="polite">
+        <span class="shop-robot">🤖</span> পণ্য লোড হচ্ছে...
+      </p>
+
+      <div id="productGrid" class="shop-product-grid">
+        <p class="shop-empty">একটু অপেক্ষা করো...</p>
+      </div>
+    </section>
+
+    <footer>© 2026 VYNTORA · Shop your way.</footer>
   </main>
+
+  <!-- Keep customer.js and shop.js as separate module scripts. -->
+  <script type="module" src="shop.js"></script>
 </body>
 </html>
