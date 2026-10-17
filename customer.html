@@ -5,35 +5,83 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080b1b">
+  <meta name="description" content="Your personal VYNTORA shopping dashboard.">
   <title>My Dashboard | VYNTORA</title>
+
   <link rel="stylesheet" href="customer.css">
   <script type="module" src="customer.js"></script>
 </head>
+
 <body>
+  <div class="page-glow" aria-hidden="true"></div>
+
   <header class="topbar">
-    <a class="brand" href="index.html"><span>V</span> VYNTORA</a>
-    <button id="logoutBtn" class="logout-btn" type="button">Log Out ↗</button>
+    <a class="brand" href="index.html" aria-label="VYNTORA Home">
+      <span>V</span> VYNTORA
+    </a>
+
+    <button id="logoutBtn" class="logout-btn" type="button">
+      Log Out ↗
+    </button>
   </header>
 
   <main class="dashboard">
+
+    <!-- Welcome Section -->
     <section class="welcome">
-      <div>
+      <div class="welcome-text">
         <p class="eyebrow">YOUR PERSONAL SPACE</p>
-        <h1>Welcome back,<br><span id="customerName">Customer</span> 👋</h1>
-        <p class="muted">Discover your next favourite thing.</p>
+
+        <h1>
+          Welcome back,
+          <br>
+          <span id="customerName">Customer</span>
+          <span class="wave">👋</span>
+        </h1>
+
+        <p class="muted">
+          Discover your next favourite thing.
+        </p>
       </div>
-      <div class="welcome-icon">✦</div>
+
+      <div class="welcome-icon" aria-hidden="true">
+        <span>✦</span>
+        <div class="robot-face">
+          <span class="robot-eyes">••</span>
+          <span class="robot-mouth">⌣</span>
+        </div>
+      </div>
     </section>
 
+    <!-- Status Message -->
+    <p
+      id="dashboardMessage"
+      class="dashboard-message"
+      role="status"
+      aria-live="polite"
+    >
+      Connecting to your account...
+    </p>
+
+    <!-- Profile Card -->
     <section class="profile-card">
-      <div class="avatar" id="avatar">V</div>
+      <div class="avatar" id="avatar" aria-hidden="true">V</div>
+
       <div class="profile-info">
         <h2 id="profileName">Loading profile...</h2>
-        <p id="profileEmail" class="muted">Loading email...</p>
-        <span class="account-status">● Account connected</span>
+
+        <p id="profileEmail" class="muted">
+          Loading email...
+        </p>
+
+        <span class="account-status">
+          <span aria-hidden="true">●</span>
+          Account connected
+        </span>
       </div>
     </section>
 
+    <!-- Quick Access -->
     <section class="section">
       <div class="section-heading">
         <div>
@@ -43,50 +91,85 @@
       </div>
 
       <div class="quick-grid">
-        <button class="quick-card" data-section="orders" type="button">
+
+        <button
+          class="quick-card"
+          data-section="orders"
+          type="button"
+          aria-label="Open My Orders"
+        >
           <span class="quick-icon">📦</span>
           <strong>My Orders</strong>
           <small>Track your purchases</small>
         </button>
 
-        <button class="quick-card" data-section="wishlist" type="button">
+        <button
+          class="quick-card"
+          data-section="wishlist"
+          type="button"
+          aria-label="Open Wishlist"
+        >
           <span class="quick-icon">♡</span>
           <strong>Wishlist</strong>
           <small>Your saved products</small>
         </button>
 
-        <button class="quick-card" data-section="cart" type="button">
+        <button
+          class="quick-card"
+          data-section="cart"
+          type="button"
+          aria-label="Open My Cart"
+        >
           <span class="quick-icon">🛒</span>
           <strong>My Cart</strong>
           <small>Review your cart</small>
         </button>
 
-        <button class="quick-card" data-section="profile" type="button">
+        <button
+          class="quick-card"
+          data-section="profile"
+          type="button"
+          aria-label="Open My Profile"
+        >
           <span class="quick-icon">👤</span>
           <strong>My Profile</strong>
           <small>Account information</small>
         </button>
+
       </div>
     </section>
 
+    <!-- Dynamic Content -->
     <section class="section" id="contentSection">
       <div class="section-heading">
         <div>
           <p class="eyebrow">EXPLORE VYNTORA</p>
-          <h2 id="contentTitle">Your dashboard</h2>
+          <h2 id="contentTitle">My Orders</h2>
         </div>
       </div>
+
       <div class="content-card">
-        <div class="content-symbol">✦</div>
-        <h3 id="contentMessage">Your shopping journey starts here.</h3>
+        <div class="content-symbol" aria-hidden="true">✦</div>
+
+        <h3 id="contentMessage">
+          Your orders will appear here.
+        </h3>
+
         <p class="muted" id="contentDescription">
-          Product listings and order tracking will appear here as those features are connected.
+          Order history and delivery tracking will be available
+          after the order system is connected.
         </p>
-        <a href="index.html" class="shop-link">Back to Home →</a>
+
+        <a href="index.html" class="shop-link">
+          Back to Home →
+        </a>
       </div>
     </section>
 
-    <footer>© 2026 VYNTORA · Shop your way.</footer>
+    <footer>
+      © 2026 VYNTORA · Shop your way.
+    </footer>
+
   </main>
 </body>
 </html>
