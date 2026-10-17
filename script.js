@@ -1,137 +1,210 @@
 
-const loginTab = document.getElementById('loginTab');
-const signupTab = document.getElementById('signupTab');
-const authForm = document.getElementById('authForm');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 
-const formTitle = document.getElementById('formTitle');
-const subtitle = document.getElementById('subtitle');
-const modeLabel = document.getElementById('modeLabel');
-const submitLabel = document.getElementById('submitLabel');
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+  updateProfile,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
-const nameWrap = document.getElementById('nameWrap');
-const fullName = document.getElementById('fullName');
-const password = document.getElementById('password');
-const message = document.getElementById('message');
+// VYNTORA Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDgbfQu5XPBQNVHMKFAjfvK5KSTy3VFdEY",
+  authDomain: "vyntora-gen-z.firebaseapp.com",
+  projectId: "vyntora-gen-z",
+  storageBucket: "vyntora-gen-z.firebasestorage.app",
+  messagingSenderId: "1091859566524",
+  appId: "1:1091859566524:web:39e57e38ee5defb28ee5b9",
+  measurementId: "G-1EPNG6CHF1"
+};
 
-const forgotBtn = document.getElementById('forgotBtn');
-const googleBtn = document.getElementById('googleBtn');
-const switchText = document.getElementById('switchText');
-const switchBtn = document.getElementById('switchBtn');
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
-const themeBtn = document.getElementById('themeBtn');
-const robot = document.getElementById('robot');
+const $ = (id) => document.getElementById(id);
 
-let currentMode = 'login';
+const loginTab = $("loginTab");
+const signupTab = $("signupTab");
+const authForm = $("authForm");
+const formTitle = $("formTitle");
+const subtitle = $("subtitle");
+const modeLabel = $("modeLabel");
+const submitLabel = $("submitLabel");
+const nameWrap = $("nameWrap");
+const fullName = $("fullName");
+const email = $("email");
+const password = $("password");
+const message = $("message");
+const forgotBtn = $("forgotBtn");
+const googleBtn = $("googleBtn");
+const switchText = $("switchText");
+const switchBtn = $("switchBtn");
+const themeBtn = $("themeBtn");
+const robot = $("robot");
+
+let currentMode = "login";
 
 function showMessage(text) {
   message.textContent = text;
 }
 
+function friendlyError(error) {
+  const errors = {
+    "auth/email-already-in-use":
+      "এই Email দিয়ে ইতিমধ্যে Account তৈরি হয়েছে।",
+    "auth/invalid-email":
+      "সঠিক Email Address লিখুন।",
+    "auth/weak-password":
+      "Password কমপক্ষে ৬ অক্ষরের হতে হবে।",
+    "auth/invalid-credential":
+      "Email অথবা Password সঠিক নয়।",
+    "auth/user-not-found":
+      "এই Email দিয়ে কোনো Account পাওয়া যায়নি।",
+    "auth/wrong-password":
+      "Password সঠিক নয়।",
+    "auth/popup-closed-by-user":
+      "Google Sign-In বন্ধ হয়ে গেছে। আবার চেষ্টা করুন।",
+    "auth/popup-blocked":
+      "Browser Popup আটকে দিয়েছে। Popup অনুমতি দিয়ে চেষ্টা করুন।",
+    "auth/unauthorized-domain":
+      "Firebase Authorized domains-এ GitHub Pages domain যোগ করুন।",
+    "auth/network-request-failed":
+      "Internet Connection পরীক্ষা করুন।",
+    "auth/too-many-requests":
+      "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+    "auth/operation-not-allowed":
+      "Firebase Console-এ এই Sign-In Method চালু করুন।"
+  };
+
+  return errors[error.code] ||
+    "সমস্যা হয়েছে: " + error.message;
+}
+
+function animateRobot() {
+  if (!robot) return;
+
+  robot.style.animation = "none";
+  void robot.offsetWidth;
+  robot.style.animation = "floatRobot .7s ease-in-out 2";
+}
+
 function setMode(mode) {
   currentMode = mode;
+  const isSignup = mode === "signup";
 
-  const isSignup = mode === 'signup';
+  loginTab.classList.toggle("active", !isSignup);
+  signupTab.classList.toggle("active", isSignup);
 
-  loginTab.classList.toggle('active', !isSignup);
-  signupTab.classList.toggle('active', isSignup);
-
-  nameWrap.classList.toggle('hidden', !isSignup);
+  nameWrap.classList.toggle("hidden", !isSignup);
   fullName.required = isSignup;
-
-  forgotBtn.classList.toggle('hidden', isSignup);
+  forgotBtn.classList.toggle("hidden", isSignup);
 
   formTitle.textContent = isSignup
-    ? 'Create your account'
-    : 'Welcome back!';
+    ? "Create your account"
+    : "Welcome back!";
 
   subtitle.textContent = isSignup
-    ? 'Join VYNTORA and discover something new.'
-    : 'Log in to continue shopping.';
+    ? "Join VYNTORA and discover something new."
+    : "Log in to continue shopping.";
 
   modeLabel.textContent = isSignup
-    ? 'JOIN VYNTORA'
-    : 'WELCOME BACK';
+    ? "JOIN VYNTORA"
+    : "WELCOME BACK";
 
   submitLabel.textContent = isSignup
-    ? 'Create Account'
-    : 'Log In';
+    ? "Create Account"
+    : "Log In";
 
   switchText.firstChild.textContent = isSignup
-    ? 'Already have an account? '
-    : 'New to VYNTORA? ';
+    ? "Already have an account? "
+    : "New to VYNTORA? ";
 
   switchBtn.textContent = isSignup
-    ? 'Log in'
-    : 'Create an account';
+    ? "Log in"
+    : "Create an account";
 
   password.autocomplete = isSignup
-    ? 'new-password'
-    : 'current-password';
+    ? "new-password"
+    : "current-password";
 
-  showMessage('');
-
-  // Robot reaction animation
-  robot.style.animation = 'none';
-  void robot.offsetWidth;
-  robot.style.animation = 'floatRobot 1s ease-in-out 2';
+  showMessage("");
+  animateRobot();
 }
 
-loginTab.addEventListener('click', () => {
-  setMode('login');
+loginTab.addEventListener("click", () => setMode("login"));
+signupTab.addEventListener("click", () => setMode("signup"));
+
+switchBtn.addEventListener("click", () => {
+  setMode(currentMode === "login" ? "signup" : "login");
 });
 
-signupTab.addEventListener('click', () => {
-  setMode('signup');
-});
-
-switchBtn.addEventListener('click', () => {
-  setMode(currentMode === 'login' ? 'signup' : 'login');
-});
-
-// Show / hide password
-const passwordField = document.getElementById('password');
-
-passwordField.insertAdjacentHTML(
-  'afterend',
-  '<button type="button" id="passwordToggle" class="forgot">Show / Hide Password</button>'
+// Show / Hide Password
+password.insertAdjacentHTML(
+  "afterend",
+  '<button type="button" id="passwordToggle" class="forgot">Show Password</button>'
 );
 
-document.getElementById('passwordToggle').addEventListener('click', () => {
-  const isHidden = password.type === 'password';
+$("passwordToggle").addEventListener("click", (event) => {
+  const show = password.type === "password";
 
-  password.type = isHidden ? 'text' : 'password';
-
-  document.getElementById('passwordToggle').textContent =
-    isHidden ? 'Hide Password' : 'Show Password';
+  password.type = show ? "text" : "password";
+  event.currentTarget.textContent =
+    show ? "Hide Password" : "Show Password";
 });
 
-// Light / Dark theme
-themeBtn.addEventListener('click', () => {
-  document.body.classList.toggle('light');
+// Dark / Light Theme
+themeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("light");
 
-  const isLight = document.body.classList.contains('light');
-
-  themeBtn.textContent = isLight ? '🌙' : '☀️';
+  const isLight = document.body.classList.contains("light");
+  themeBtn.textContent = isLight ? "🌙" : "☀️";
 
   try {
-    localStorage.setItem('vyntora-theme', isLight ? 'light' : 'dark');
+    localStorage.setItem(
+      "vyntora-theme",
+      isLight ? "light" : "dark"
+    );
+  } catch {}
+});
+
+try {
+  if (localStorage.getItem("vyntora-theme") === "light") {
+    document.body.classList.add("light");
+    themeBtn.textContent = "🌙";
+  }
+} catch {}
+
+// Logout Button
+let logoutBtn = $("logoutBtn");
+
+if (!logoutBtn) {
+  logoutBtn = document.createElement("button");
+  logoutBtn.id = "logoutBtn";
+  logoutBtn.type = "button";
+  logoutBtn.className = "google-btn";
+  logoutBtn.textContent = "Log Out";
+  logoutBtn.hidden = true;
+  message.insertAdjacentElement("afterend", logoutBtn);
+}
+
+logoutBtn.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    showMessage("আপনি সফলভাবে Logout করেছেন।");
   } catch (error) {
-    // Theme still works if browser storage is unavailable.
+    showMessage(friendlyError(error));
   }
 });
 
-// Restore saved theme
-try {
-  if (localStorage.getItem('vyntora-theme') === 'light') {
-    document.body.classList.add('light');
-    themeBtn.textContent = '🌙';
-  }
-} catch (error) {
-  // Use the default dark theme.
-}
-
-// Login / Signup form preview
-authForm.addEventListener('submit', (event) => {
+// Firebase Signup and Login
+authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!authForm.checkValidity()) {
@@ -139,42 +212,109 @@ authForm.addEventListener('submit', (event) => {
     return;
   }
 
-  showMessage(
-    currentMode === 'signup'
-      ? 'Signup design ready. Firebase Authentication must be connected to create your account.'
-      : 'Login design ready. Firebase Authentication must be connected to sign in.'
-  );
+  const emailValue = email.value.trim();
+  const passwordValue = password.value;
 
-  robot.style.animation = 'none';
-  void robot.offsetWidth;
-  robot.style.animation = 'floatRobot .7s ease-in-out 3';
+  submitLabel.textContent = "Please wait...";
+  showMessage("");
+
+  try {
+    if (currentMode === "signup") {
+      const name = fullName.value.trim();
+
+      if (!name) {
+        showMessage("আপনার নাম লিখুন।");
+        return;
+      }
+
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        emailValue,
+        passwordValue
+      );
+
+      await updateProfile(result.user, {
+        displayName: name
+      });
+
+      showMessage(
+        "Welcome to VYNTORA, " + name + "! Account created successfully."
+      );
+    } else {
+      const result = await signInWithEmailAndPassword(
+        auth,
+        emailValue,
+        passwordValue
+      );
+
+      showMessage(
+        "Welcome back, " +
+        (result.user.displayName || result.user.email) + "!"
+      );
+    }
+
+    animateRobot();
+  } catch (error) {
+    showMessage(friendlyError(error));
+  } finally {
+    submitLabel.textContent =
+      currentMode === "signup"
+        ? "Create Account"
+        : "Log In";
+  }
 });
 
-// Forgot password preview
-forgotBtn.addEventListener('click', () => {
-  const emailInput = document.getElementById('email');
+// Google Sign-In
+googleBtn.addEventListener("click", async () => {
+  try {
+    googleBtn.disabled = true;
+    showMessage("Connecting to Google...");
 
-  if (!emailInput.value.trim()) {
-    showMessage('Enter your email address first to reset your password.');
-    emailInput.focus();
+    const result = await signInWithPopup(auth, googleProvider);
+
+    showMessage(
+      "Welcome to VYNTORA, " +
+      (result.user.displayName || "Customer") + "!"
+    );
+
+    animateRobot();
+  } catch (error) {
+    showMessage(friendlyError(error));
+  } finally {
+    googleBtn.disabled = false;
+  }
+});
+
+// Forgot Password
+forgotBtn.addEventListener("click", async () => {
+  const emailValue = email.value.trim();
+
+  if (!emailValue) {
+    showMessage("প্রথমে Email Address লিখুন।");
+    email.focus();
     return;
   }
 
-  showMessage(
-    'Password reset requires Firebase Authentication to be connected.'
-  );
+  try {
+    await sendPasswordResetEmail(auth, emailValue);
+    showMessage(
+      "Password reset email পাঠানো হয়েছে। Inbox ও Spam folder দেখুন।"
+    );
+  } catch (error) {
+    showMessage(friendlyError(error));
+  }
 });
 
-// Google sign-in preview
-googleBtn.addEventListener('click', () => {
-  showMessage(
-    'Google Sign-In requires Firebase Authentication setup.'
-  );
+// Check Login Status
+onAuthStateChanged(auth, (user) => {
+  logoutBtn.hidden = !user;
 
-  robot.style.animation = 'none';
-  void robot.offsetWidth;
-  robot.style.animation = 'floatRobot .7s ease-in-out 2';
+  if (user) {
+    showMessage(
+      "Signed in: " + (user.displayName || user.email)
+    );
+  }
 });
 
-// Initial state
-setMode('login');
+// Initial screen
+setMode("login");
