@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b1b">
+  <title>VYNTORA | Online Shopping</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <a href="#" class="logo"><span>V</span> VYNTORA</a>
+    <button id="themeBtn" class="theme-btn" type="button" aria-label="Toggle theme">☀️</button>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="robot" id="robot">
+        <div class="antenna"></div>
+        <div class="robot-head">
+          <div class="eyes"><i></i><i></i></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="robot-body">✦</div>
+        <div class="robot-arm"></div>
+      </div>
+      <p class="eyebrow">YOUR EVERYDAY SHOPPING PARTNER</p>
+      <h1>Discover More.<br><span>Live Better.</span></h1>
+      <p class="intro">Gadgets, watches, accessories and more — all in one place.</p>
+    </section>
+
+    <section class="auth-card">
+      <p class="eyebrow" id="modeLabel">WELCOME BACK</p>
+      <div class="tabs">
+        <button class="tab active" id="loginTab" type="button">Log In</button>
+        <button class="tab" id="signupTab" type="button">Sign Up</button>
+      </div>
+
+      <h2 id="formTitle">Welcome back!</h2>
+      <p class="subtitle" id="subtitle">Log in to continue shopping.</p>
+
+      <form id="authForm">
+        <div id="nameWrap" class="field hidden">
+          <label for="fullName">Full name</label>
+          <input id="fullName" type="text" placeholder="Enter your name" autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <input id="email" type="email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="At least 6 characters" minlength="6" required autocomplete="current-password">
+        </div>
+
+        <button class="forgot" id="forgotBtn" type="button">Forgot password?</button>
+        <button class="primary-btn" type="submit">
+          <span id="submitLabel">Log In</span> <span>→</span>
+        </button>
+        <p id="message" class="message" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="separator"><span>OR</span></div>
+      <button class="google-btn" id="googleBtn" type="button">
+        <b>G</b> Continue with Google
+      </button>
+      <p class="switch-text" id="switchText">
+        New to VYNTORA? <button id="switchBtn" type="button">Create an account</button>
+      </p>
+      <p class="terms">Secure shopping starts here. Your account information is protected by the authentication service when connected.</p>
+    </section>
+  </main>
+
+  <footer>© 2026 VYNTORA · Your style, your choice.</footer>
+  <script src="script.js"></script>
+</body>
+</html>
