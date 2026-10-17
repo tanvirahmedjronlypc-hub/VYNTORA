@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b1b">
+  <meta name="description" content="VYNTORA Shopping Cart">
+  <title>My Cart | VYNTORA</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b1b;
+      --panel: #111831;
+      --line: #29365f;
+      --blue: #3b82f6;
+      --purple: #9333ea;
+      --text: #f4f6ff;
+      --muted: #aab5d2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at top right, #46208055, transparent 40%),
+        radial-gradient(ellipse at bottom left, #123c8550, transparent 45%),
+        var(--bg);
+    }
+
+    button, a { font: inherit; }
+
+    button:focus-visible, a:focus-visible {
+      outline: 2px solid #a78bfa;
+      outline-offset: 3px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px max(5%, calc((100% - 1100px) / 2));
+      border-bottom: 1px solid #ffffff14;
+      background: #080b1bd9;
+    }
+
+    .brand {
+      color: white;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 21px;
+      letter-spacing: 1px;
+    }
+
+    .brand span { color: #818cf8; }
+
+    .back-link {
+      color: #c4b5fd;
+      text-decoration: none;
+    }
+
+    main {
+      width: min(1100px, 92%);
+      margin: 35px auto;
+      animation: arrive .6s ease both;
+    }
+
+    .heading { margin-bottom: 25px; }
+
+    .eyebrow {
+      color: #a78bfa;
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    h1 { margin: 8px 0; font-size: clamp(28px, 5vw, 42px); }
+
+    .muted { color: var(--muted); line-height: 1.6; }
+
+    .cart-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .cart-list, .summary {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #111831d9;
+      box-shadow: 0 12px 40px #00000020;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr);
+      gap: 15px;
+      padding: 15px 0;
+      border-bottom: 1px solid #ffffff12;
+      animation: arrive .4s ease both;
+    }
+
+    .cart-item:first-child { padding-top: 0; }
+    .cart-item:last-child { border-bottom: 0; }
+
+    .product-image {
+      width: 90px;
+      height: 100px;
+      object-fit: contain;
+      background: #080e23;
+      border-radius: 12px;
+    }
+
+    .product-name {
+      margin: 2px 0 7px;
+      overflow-wrap: anywhere;
+      font-size: 17px;
+    }
+
+    .product-code { color: #a5b4fc; font-size: 12px; }
+
+    .product-price {
+      margin: 9px 0;
+      color: #67e8f9;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quantity {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .quantity button {
+      width: 30px;
+      height: 30px;
+      border: 0;
+      border-radius: 7px;
+      background: #202d51;
+      color: white;
+      cursor: pointer;
+    }
+
+    .remove-button {
+      padding: 8px 10px;
+      color: #fda4af;
+      border: 1px solid #713044;
+      background: #43192755;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    .summary h2 { margin-top: 0; }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 16px 0;
+      color: var(--muted);
+    }
+
+    .summary-total {
+      padding-top: 15px;
+      border-top: 1px solid var(--line);
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .primary-button, .secondary-button {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 12px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .primary-button {
+      color: white;
+      background: linear-gradient(110deg, var(--blue), var(--purple));
+      font-weight: 800;
+    }
+
+    .secondary-button {
+      color: #dbeafe;
+      border: 1px solid var(--line);
+      background: transparent;
+    }
+
+    .primary-button:hover, .secondary-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 18px #6366f155;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .empty-state {
+      padding: 35px 12px;
+      text-align: center;
+    }
+
+    .empty-robot {
+      display: inline-block;
+      font-size: 46px;
+      animation: robot 1.6s ease-in-out infinite;
+    }
+
+    .notice {
+      margin-top: 14px;
+      color: #c4b5fd;
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    footer {
+      padding: 30px 10px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes robot {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px) rotate(4deg); }
+    }
+
+    @media (max-width: 720px) {
+      .cart-layout { grid-template-columns: 1fr; }
+      .summary { order: -1; }
+      .cart-list, .summary { padding: 14px; }
+    }
+
+    @media (max-width: 380px) {
+      .cart-item { grid-template-columns: 70px minmax(0, 1fr); gap: 10px; }
+      .product-image { width: 70px; height: 85px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span>V</span> VYNTORA</a>
+    <a class="back-link" href="customer.html">← Continue Shopping</a>
+  </header>
+
+  <main>
+    <section class="heading">
+      <p class="eyebrow">YOUR SHOPPING BAG</p>
+      <h1>🛒 My Cart</h1>
+      <p class="muted">তোমার পছন্দের পণ্যগুলো এখানে দেখতে পারবে।</p>
+    </section>
+
+    <div class="cart-layout">
+      <section class="cart-list" aria-label="Cart products">
+        <div id="cartItems"></div>
+      </section>
+
+      <aside class="summary">
+        <h2>Order Summary</h2>
+
+        <div class="summary-row">
+          <span>মোট পণ্য</span>
+          <strong id="itemCount">0</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <strong id="subtotal">৳0</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Delivery charge</span>
+          <strong id="delivery">Checkout-এ নির্ধারিত হবে</strong>
+        </div>
+
+        <div class="summary-row summary-total">
+          <span>মোট</span>
+          <strong id="total">৳0</strong>
+        </div>
+
+        <button id="checkoutBtn" class="primary-button" type="button" disabled>
+          Proceed to Checkout →
+        </button>
+
+        <a href="customer.html#shopSection" class="secondary-button">
+          ← আরও কেনাকাটা করো
+        </a>
+
+        <p class="notice">
+          ডেলিভারি চার্জ Checkout-এ নিশ্চিত করা হবে। অর্ডার দেওয়ার আগে পণ্যের দাম ও স্টক আবার যাচাই করা প্রয়োজন।
+        </p>
+        <p id="cartStatus" class="notice" role="status" aria-live="polite"></p>
+      </aside>
+    </div>
+
+    <footer>© 2026 VYNTORA · Shop your way.</footer>
+  </main>
+
+  <script type="module" src="cart.js"></script>
+</body>
+</html>
